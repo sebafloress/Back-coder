@@ -1,0 +1,23 @@
+[
+    {
+        "id": "1",
+        "nombre": "Camiseta Deportiva Nike",
+        "precio": 100000,
+        "stock": 100,
+        "descripcion": "Camiseta deportiva de alta calidad"
+    },
+    {
+        "id": "2",
+        "nombre": "Zapatillas Nike",
+        "precio": 200000,
+        "stock": 50,
+        "descripcion": "Zapatillas con amortiguación especial para correr"
+    },
+    {
+        "id": "3",
+        "nombre": "Buzo Nike",
+        "precio": 80000,
+        "stock": 30,
+        "descripcion": "Buzo logo Nike blanco"
+    }
+]

@@ -1,20 +1,20 @@
 {
-  "name": "06---servidores-web",
+  "name": "back-coder",
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node server-express.js",
-    "dev": "node --watch server-express.js",
-    "start:http": "node server-http.js",
-    "dev:http": "node --watch server-http.js"
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.21.1"
+    "express": "^4.21.1",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "uuid": "^11.0.2"
   },
-  "devDependencies": {},
   "description": ""
 }
