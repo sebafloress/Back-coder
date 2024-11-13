@@ -56,9 +56,9 @@ class ProductManager {
     async update(obj, id) {
         try {
             const products = await this.getAll();
-            let product = await this.getById(id); // Error if not found
+            let product = await this.getById(id);
 
-            // Update only the allowed fields (exclude id)
+
             product = { ...product, ...obj };
 
             const updatedProducts = products.map(prod => prod.id === id ? product : prod);

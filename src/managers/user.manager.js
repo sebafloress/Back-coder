@@ -29,10 +29,10 @@ class UserManager {
 
     async createUser(obj) {
         try {
-            // const cart = await cartManager.create();
+
             const user = {
                 id: uuidv4(),
-                // cart: cart.id
+
                 ...obj,
             };
             const users = await this.getUsers();
@@ -61,19 +61,19 @@ class UserManager {
 
     async updateUser(obj, id) {
         try {
-            //array de usuarios
+
             const users = await this.getUsers();
-            //user encontrado
-            let user = await this.getUserById(id); //si no lo encuentra, devuelve el error
-            // le asignamos los valores nuevos que legan por body
+
+            let user = await this.getUserById(id);
+
             user = { ...user, ...obj };
-            //si en el body enviamos una pass nueva, volvemos a hashear
+
             if (obj.password) this.#createHash(user);
-            //filtramos y sacamos el usuario original (linea 64)
+
             const newArray = users.filter((user) => user.id !== id);
-            //guardamos el objeto que creamos en la linea 66
+
             newArray.push(user);
-            //lo guardamos en el json
+
             await fs.promises.writeFile(this.path, JSON.stringify(newArray));
             return user;
         } catch (error) {

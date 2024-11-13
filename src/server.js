@@ -1,20 +1,55 @@
-import express from "express";
-import userRouter from "./routes/user.router.js";
-import productRouter from "./routes/product.router.js";
-import cartRouter from "./routes/cart.router.js";
-import morgan from 'morgan'
+// src/server.js
+import express from 'express';
+import { engine } from 'express-handlebars';
+import { Server as SocketIOServer } from 'socket.io';
+import http from 'http';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+import viewsRouter from './routes/views.router.js';
+import productRouter from './routes/product.router.js';
+import cartRouter from './routes/cart.router.js';
+
+// Obtener el directorio actual (__dirname equivalente)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
+const server = http.createServer(app);
+const io = new SocketIOServer(server);
 
-app.use('/static', express.static(path.join(process.cwd(), "src", "public")));
+// Configuración del motor de plantillas Handlebars
+app.engine('handlebars', engine());
+app.set('view engine', 'handlebars');
+app.set('views', path.join(__dirname, 'views'));
+
+// Middleware para parseo de JSON
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(morgan('dev'))
 
-app.use("/api/users", userRouter);
-app.use("/api/products", productRouter);
-app.use("/api/carts", cartRouter);
+// Rutas
+app.use('/', viewsRouter);
+app.use('/api/products', productRouter);
+app.use('/api/carts', cartRouter);
 
+// Servir archivos estáticos
+app.use(express.static(path.join(__dirname, 'public')));
 
-app.listen(8089, () => console.log("server ok puerto 8089"));
+// WebSocket para actualizar la vista en tiempo real
+io.on('connection', (socket) => {
+    console.log('Nuevo cliente conectado');
+
+    socket.on('newProduct', (product) => {
+        io.emit('updateProducts', product);
+    });
+
+    socket.on('deleteProduct', (productId) => {
+        io.emit('updateProducts', productId);
+    });
+});
+
+// Iniciar el servidor en el puerto 8080
+const PORT = 8080;
+server.listen(PORT, () => {
+    console.log(`Servidor en ejecución en el puerto ${PORT}`);
+});
