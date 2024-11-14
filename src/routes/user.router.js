@@ -35,13 +35,11 @@ router.post("/", [userValidator], async (req, res) => {
 
 router.post("/upload-file", uploader.single('profile'), async (req, res) => {
     try {
-        console.log(req.file);
         const userBody = req.body
         userBody.profile = req.file.filename
         const user = await userManager.createUser(userBody);
         res.status(201).json(user);
     } catch (error) {
-        console.log(error)
         res.status(500).json({ message: error.message });
     }
 });
@@ -74,6 +72,5 @@ router.put("/:id", async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
-
 
 export default router;

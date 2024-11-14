@@ -1,23 +1,33 @@
 [
-    {
-        "id": "1",
-        "nombre": "Camiseta Deportiva Nike",
-        "precio": 100000,
-        "stock": 100,
-        "descripcion": "Camiseta deportiva de alta calidad"
-    },
-    {
-        "id": "2",
-        "nombre": "Zapatillas Nike",
-        "precio": 200000,
-        "stock": 50,
-        "descripcion": "Zapatillas con amortiguación especial para correr"
-    },
-    {
-        "id": "3",
-        "nombre": "Buzo Nike",
-        "precio": 80000,
-        "stock": 30,
-        "descripcion": "Buzo logo Nike blanco"
-    }
+  {
+    "id": "1",
+    "name": "Camiseta Deportiva Nike",
+    "price": 100000,
+    "stock": 100,
+    "description": "Camiseta deportiva de alta calidad"
+  },
+  {
+    "id": "2",
+    "name": "Zapatillas Nike",
+    "price": 200000,
+    "stock": 50,
+    "description": "Zapatillas con amortiguación especial para correr"
+  },
+  {
+    "id": "3",
+    "name": "Buzo Nike",
+    "price": 80000,
+    "stock": 30,
+    "description": "Buzo logo Nike blanco"
+  },
+  {
+    "name": "zapatillas",
+    "price": "50000",
+    "id": 1731612135091
+  },
+  {
+    "name": "zapatillas",
+    "price": "50000",
+    "id": 1731612140602
+  }
 ]

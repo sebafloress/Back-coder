@@ -1,7 +1,7 @@
 import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
-import { prodManager } from "./product.manager.js";
+import productManager from "./product.manager.js";
 
 class CartManager {
     constructor(path) {
@@ -46,7 +46,7 @@ class CartManager {
 
     async saveProdToCart(idCart, idProd) {
         try {
-            const productExists = await prodManager.getById(idProd);
+            const productExists = await productManager.getById(idProd);
             if (!productExists) throw new Error('Product does not exist');
 
             let carts = await this.getAllCarts();
