@@ -5,12 +5,44 @@ const router = Router();
 
 router.get("/", async (req, res) => {
     try {
-        const { limit } = req.query;
-        const products = await productManager.getAll();
-        const limitedProducts = limit ? products.slice(0, limit) : products;
-        res.status(200).json(limitedProducts);
+        const { limit = 10, page = 1, sort, query, availability } = req.query;
+        let filter = {};
+
+        if (query) {
+            filter.category = query;
+        }
+
+        if (availability) {
+            filter.available = availability === 'available';
+        }
+
+        const sortOption = sort === 'asc' ? { price: 1 } : sort === 'desc' ? { price: -1 } : {};
+        const options = {
+            limit: parseInt(limit),
+            skip: (parseInt(page) - 1) * parseInt(limit),
+            sort: sortOption,
+        };
+
+        const products = await productManager.getAll(filter, options);
+        const totalProducts = await productManager.countDocuments(filter);
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        const response = {
+            status: 'success',
+            payload: products,
+            totalPages,
+            prevPage: page > 1 ? page - 1 : null,
+            nextPage: page < totalPages ? page + 1 : null,
+            page: parseInt(page),
+            hasPrevPage: page > 1,
+            hasNextPage: page < totalPages,
+            prevLink: page > 1 ? `/products?limit=${limit}&page=${page - 1}&sort=${sort}&query=${query}&availability=${availability}` : null,
+            nextLink: page < totalPages ? `/products?limit=${limit}&page=${page + 1}&sort=${sort}&query=${query}&availability=${availability}` : null,
+        };
+
+        res.status(200).json(response);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ status: 'error', message: error.message });
     }
 });
 

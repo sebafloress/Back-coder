@@ -1,13 +1,169 @@
+<!-- src/views/home.handlebars -->
 {{> navbar }}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio</title>
+    <title>Lista de Productos</title>
+    <link rel="stylesheet" href="/styles.css">
 </head>
-<body>
+<body data-cart-id="{{cartId}}">
     <h1>Bienvenido a la Página de Inicio</h1>
     <p>Esta es la vista de inicio de la aplicación.</p>
+
+    <div class="product-list">
+        {{#each products}}
+        <div class="product-item">
+            <h2>{{this.name}}</h2>
+            <p>Price: ${{this.price}}</p>
+            <p>Category: {{this.category}}</p>
+            <a href="/products/{{this._id}}">View Details</a>
+            <button onclick="addToCart('{{this._id}}')">Add to Cart</button>
+            <button onclick="removeFromCart('{{this._id}}')">Remove from Cart</button>
+            <button class="delete-button" onclick="deleteProduct('{{this._id}}')">&times;</button>
+        </div>
+        {{/each}}
+    </div>
+
+    <div class="pagination-info">
+    <span>Page {{page}} of {{totalPages}}</span>
+    {{#if hasPrevPage}}
+    <a href="{{prevLink}}">Previous</a>
+    {{/if}}
+    {{#if hasNextPage}}
+    <a href="{{nextLink}}">Next</a>
+    {{/if}}
+</div>
+
+    <div class="custom-product-section">
+        <h2>Our Products</h2>
+        <div class="product-grid">
+            {{#each products}}
+            <div class="product-card">
+                <h3>{{this.name}}</h3>
+                <p><strong>Price:</strong> ${{this.price}}</p>
+                <p><strong>Stock:</strong> {{this.stock}} available</p>
+                <button onclick="addToCart('{{this._id}}')">Add to Cart</button>
+                <button onclick="viewDetails('{{this._id}}')">View Details</button>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+
+    <style>
+    .custom-product-section {
+        padding: 20px;
+        background-color: #f9f9f9;
+    }
+
+    .product-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .product-card {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 8px;
+        width: calc(25% - 20px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .product-card h3 {
+        margin: 0 0 10px;
+    }
+
+    .product-card p {
+        margin: 5px 0;
+    }
+
+    .product-card button {
+        margin-top: 10px;
+        padding: 8px 12px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .product-card button:hover {
+        background-color: #0056b3;
+    }
+    </style>
+
+    <script>
+    const cartId = document.body.dataset.cartId;
+
+    function addToCart(productId) {
+        fetch(`/api/carts/${cartId}/product/${productId}`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                window.location.href = '/cart'; // Redirect to cart page
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function removeFromCart(productId) {
+        fetch(`/api/carts/${cartId}/product/${productId}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                window.location.href = '/cart'; // Redirect to cart page
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function deleteProduct(productId) {
+        fetch(`/api/products/${productId}`, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                location.reload(); // Reload the page to update the product list
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function viewDetails(productId) {
+        window.location.href = `/products/${productId}`;
+    }
+    </script>
+
+    <div class="filters">
+        <form id="filterForm">
+            <label for="query">Category:</label>
+            <input type="text" id="query" name="query" placeholder="Enter category">
+
+            <label for="sort">Sort by Price:</label>
+            <select id="sort" name="sort">
+                <option value="">None</option>
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+            </select>
+
+            <label for="limit">Items per Page:</label>
+            <input type="number" id="limit" name="limit" min="1" value="10">
+
+            <button type="submit">Apply Filters</button>
+        </form>
+    </div>
+
+    <script>
+    document.getElementById('filterForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const query = document.getElementById('query').value;
+        const sort = document.getElementById('sort').value;
+        const limit = document.getElementById('limit').value;
+        const url = `/home?query=${query}&sort=${sort}&limit=${limit}`;
+        window.location.href = url;
+    });
+    </script>
+
+    {{!-- Existing product list and pagination --}}
 </body>
 </html>

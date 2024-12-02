@@ -1,72 +1,59 @@
-import fs from "fs";
-import { v4 as uuidv4 } from "uuid";
-import path from "path";
-import productManager from "./product.manager.js";
+import Cart from '../models/cart.model.js';
 
 class CartManager {
-    constructor(path) {
-        this.path = path;
-    }
-
-    async getAllCarts() {
-        try {
-            if (fs.existsSync(this.path)) {
-                const carts = await fs.promises.readFile(this.path, "utf-8");
-                return JSON.parse(carts);
-            } else {
-                return [];
-            }
-        } catch (error) {
-            throw new Error(error);
-        }
-    }
-
     async createCart() {
-        try {
-            const cart = { id: uuidv4(), products: [] };
-            const carts = await this.getAllCarts();
-            carts.push(cart);
-            await fs.promises.writeFile(this.path, JSON.stringify(carts, null, 2));
-            return cart;
-        } catch (error) {
-            throw new Error(error);
-        }
+        const cart = new Cart();
+        return await cart.save();
     }
 
     async getCartById(id) {
-        try {
-            const carts = await this.getAllCarts();
-            const cart = carts.find(cart => cart.id === id);
-            if (!cart) throw new Error("Cart not found");
-            return cart;
-        } catch (error) {
-            throw new Error(error);
-        }
+        return await Cart.findById(id).populate('products.productId');
     }
 
-    async saveProdToCart(idCart, idProd) {
-        try {
-            const productExists = await productManager.getById(idProd);
-            if (!productExists) throw new Error('Product does not exist');
+    async getCartByUserId(userId) {
+        return await Cart.findOne({ userId }).populate('products.productId');
+    }
 
-            let carts = await this.getAllCarts();
-            const cart = await this.getCartById(idCart);
-            if (!cart) throw new Error('Cart not found');
-
-            const productInCart = cart.products.find(prod => prod.id === idProd);
-            if (productInCart) {
-                productInCart.quantity += 1;
-            } else {
-                cart.products.push({ id: idProd, quantity: 1 });
-            }
-
-            const updatedCarts = carts.map(c => c.id === idCart ? cart : c);
-            await fs.promises.writeFile(this.path, JSON.stringify(updatedCarts, null, 2));
-            return cart;
-        } catch (error) {
-            throw new Error(error);
+    async addProductToCart(productId) {
+        const cart = await Cart.findOne(); // Assuming a single cart for simplicity
+        if (!cart) {
+            const newCart = new Cart({ products: [{ productId, quantity: 1 }] });
+            return await newCart.save();
         }
+        const productIndex = cart.products.findIndex(p => p.productId.toString() === productId);
+        if (productIndex > -1) {
+            cart.products[productIndex].quantity += 1;
+        } else {
+            cart.products.push({ productId, quantity: 1 });
+        }
+        return await cart.save();
+    }
+
+    async saveProdToCart(cid, pid, quantity = 1) {
+        const cart = await Cart.findById(cid);
+        const productIndex = cart.products.findIndex(p => p.productId.toString() === pid);
+        if (productIndex > -1) {
+            cart.products[productIndex].quantity += quantity;
+        } else {
+            cart.products.push({ productId: pid, quantity });
+        }
+        return await cart.save();
+    }
+
+    async updateProductQuantity(cid, pid, quantity) {
+        const cart = await Cart.findById(cid);
+        const productIndex = cart.products.findIndex(p => p.productId.toString() === pid);
+        if (productIndex > -1) {
+            cart.products[productIndex].quantity = quantity;
+        }
+        return await cart.save();
+    }
+
+    async removeProductFromCart(cid, pid) {
+        const cart = await Cart.findById(cid);
+        cart.products = cart.products.filter(p => p.productId.toString() !== pid);
+        return await cart.save();
     }
 }
 
-export const cartManager = new CartManager(path.join(process.cwd(), "src/data/carts.json"));
+export const cartManager = new CartManager();
